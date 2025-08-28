@@ -640,8 +640,8 @@
                             ${item.jenisPengajuan || item.jenispengajuan || '-'}
                         </span>
                     </td>
-                    <td class="px-4 py-3 text-sm text-gray-900 max-w-md">
-                        <div class="whitespace-normal break-words">${item.deskripsi || '-'}</div>
+                    <td class="px-4 py-3 text-sm text-gray-900 max-w-xs">
+                        <div class="truncate" title="${item.deskripsi || '-'}">${item.deskripsi ? (item.deskripsi.length > 50 ? item.deskripsi.substring(0, 50) + '...' : item.deskripsi) : '-'}</div>
                     </td>
                     <td class="px-4 py-3 text-sm">
                         <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}">
@@ -929,9 +929,6 @@
         }
     </script>
 
-    <!-- Connection Status -->
-    <div class="fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-800 px-4 py-2 rounded-lg text-sm max-w-xs">
-        <strong>✓ Terhubung:</strong> Google Sheets terintegrasi penuh
-    </div>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9756eb98d672fdc7',t:'MTc1NjI0ODk2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9760602a2752a0bc',t:'MTc1NjM0ODExMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
