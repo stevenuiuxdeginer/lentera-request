@@ -3,1816 +3,932 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lentera Disiplin - Sekolah Lentera Harapan Labuan Bajo</title>
+    <title>Lentera Request - Aplikasi Pengajuan Barang & Perbaikan</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#E0F2FE',
+                        accent: '#0EA5E9'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            box-sizing: border-box;
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .card-shadow:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .card-hover {
-            transition: all 0.3s ease;
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
         }
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .notification-enter {
-            animation: slideIn 0.3s ease-out;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        /* Custom scrollbar for student cards */
-        #studentCards::-webkit-scrollbar {
-            width: 6px;
-        }
-        #studentCards::-webkit-scrollbar-track {
-            background: #f3f4f6;
-            border-radius: 3px;
-        }
-        #studentCards::-webkit-scrollbar-thumb {
-            background: #9333ea;
-            border-radius: 3px;
-        }
-        #studentCards::-webkit-scrollbar-thumb:hover {
-            background: #7c3aed;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 to-white min-h-screen">
     <!-- Header -->
-    <header class="gradient-bg text-white p-6 shadow-lg">
-        <div class="container mx-auto">
-            <h1 class="text-3xl font-bold text-center">🏫 Lentera Disiplin</h1>
-            <p class="text-center text-purple-100 mt-2">Sekolah Lentera Harapan Labuan Bajo</p>
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">Lentera Request</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <button onclick="showPage('home')" class="nav-btn text-primary font-medium hover:text-accent transition-colors">Ajukan Permintaan</button>
+                    <button onclick="showPage('history')" class="nav-btn text-gray-600 font-medium hover:text-primary transition-colors">Riwayat</button>
+                </nav>
+                <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden md:hidden mt-4 pb-4 border-t">
+                <button onclick="showPage('home')" class="block w-full text-left py-2 text-primary font-medium">Ajukan Permintaan</button>
+                <button onclick="showPage('history')" class="block w-full text-left py-2 text-gray-600 font-medium">Riwayat</button>
+            </div>
         </div>
     </header>
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-md sticky top-0 z-40">
-        <div class="container mx-auto px-6">
-            <div class="flex justify-center space-x-8">
-                <button onclick="showSection('dashboard')" class="nav-btn py-4 px-6 text-purple-600 border-b-2 border-purple-600 font-semibold">Dashboard</button>
-                <button onclick="showSection('input')" class="nav-btn py-4 px-6 text-gray-600 hover:text-purple-600 font-semibold">Form Input</button>
-                <button onclick="showSection('history')" class="nav-btn py-4 px-6 text-gray-600 hover:text-purple-600 font-semibold">Riwayat Laporan</button>
-            </div>
-        </div>
-    </nav>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Home Page -->
+        <div id="homePage" class="page-content">
+            <!-- Hero Section -->
+            <section class="text-center mb-12 fade-in">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                    Aplikasi Pengajuan<br>
+                    <span class="text-primary">Barang & Perbaikan</span>
+                </h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Ajukan permintaan barang atau perbaikan dengan mudah dan pantau statusnya secara real-time
+                </p>
+            </section>
 
-    <!-- Dashboard Section -->
-    <div id="dashboard" class="section container mx-auto px-6 py-8">
-        <!-- Ringkasan Data Pelanggaran -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">📊 Ringkasan Data Pelanggaran</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                <div class="bg-gradient-to-r from-blue-400 to-blue-500 text-white p-6 rounded-xl card-hover cursor-pointer" onclick="showViolationDetails('total')">
-                    <h3 class="text-sm font-medium opacity-90">Total Laporan</h3>
-                    <p class="text-3xl font-bold mt-2" id="totalReports">0</p>
+            <!-- Request Form -->
+            <section class="max-w-2xl mx-auto">
+                <div class="bg-white rounded-2xl card-shadow p-8 fade-in">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Form Ajukan Permintaan</h3>
+                    <form id="requestForm" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Pengaju</label>
+                            <input type="text" id="namaPengaju" required 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Pengajuan</label>
+                            <select id="jenisPengajuan" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                <option value="">Pilih Jenis Pengajuan</option>
+                                <option value="Barang">Barang</option>
+                                <option value="Perbaikan">Perbaikan</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Kebutuhan</label>
+                            <textarea id="deskripsi" required rows="4" 
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                      placeholder="Jelaskan kebutuhan Anda secara detail..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pengajuan</label>
+                                <input type="date" id="tanggalPengajuan" required 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                <input type="text" value="Menunggu" readonly 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" 
+                                class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-4 px-6 rounded-lg transition-all transform hover:scale-105 focus:ring-4 focus:ring-blue-200">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Ajukan Permintaan
+                            </span>
+                        </button>
+                    </form>
                 </div>
-                <div class="bg-gradient-to-r from-green-400 to-green-500 text-white p-6 rounded-xl card-hover cursor-pointer" onclick="showViolationDetails('teguran')">
-                    <h3 class="text-sm font-medium opacity-90">Teguran Lisan</h3>
-                    <p class="text-3xl font-bold mt-2" id="teguranCount">0</p>
-                </div>
-                <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-6 rounded-xl card-hover cursor-pointer" onclick="showViolationDetails('wk')">
-                    <h3 class="text-sm font-medium opacity-90">Bertemu WK</h3>
-                    <p class="text-3xl font-bold mt-2" id="wkCount">0</p>
-                </div>
-                <div class="bg-gradient-to-r from-orange-400 to-orange-500 text-white p-6 rounded-xl card-hover cursor-pointer" onclick="showViolationDetails('detensi1')">
-                    <h3 class="text-sm font-medium opacity-90">Detensi I</h3>
-                    <p class="text-3xl font-bold mt-2" id="detensi1Count">0</p>
-                </div>
-                <div class="bg-gradient-to-r from-red-400 to-red-500 text-white p-6 rounded-xl card-hover cursor-pointer" onclick="showViolationDetails('detensi2')">
-                    <h3 class="text-sm font-medium opacity-90">Detensi II</h3>
-                    <p class="text-3xl font-bold mt-2" id="detensi2Count">0</p>
-                </div>
-                <div class="bg-gradient-to-r from-purple-400 to-purple-500 text-white p-6 rounded-xl card-hover cursor-pointer" onclick="showViolationDetails('dipulangkan')">
-                    <h3 class="text-sm font-medium opacity-90">Dipulangkan</h3>
-                    <p class="text-3xl font-bold mt-2" id="dipulangkanCount">0</p>
-                </div>
-            </div>
+            </section>
         </div>
 
-        <!-- Ringkasan Siswa -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">👥 Ringkasan Siswa</h2>
-            <div class="bg-white rounded-xl p-6 shadow-lg">
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Filter Siswa</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-                        <input type="text" id="studentNameFilter" placeholder="Cari nama siswa..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                        <select id="studentClassFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                            <option value="">Semua Kelas</option>
-                            <option value="1">1</option>
-                            <option value="2A">2A</option>
-                            <option value="2B">2B</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8A">8A</option>
-                            <option value="8B">8B</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                        </select>
-                        <select id="studentSemesterFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                            <option value="">Semua Semester</option>
-                            <option value="Semester 1">Semester 1</option>
-                            <option value="Semester 2">Semester 2</option>
-                        </select>
-                        <select id="studentYearFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                            <option value="">Semua Tahun Ajaran</option>
-                        </select>
-                        <button onclick="filterStudentData()" class="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 font-semibold">Terapkan Filter</button>
+
+
+        <!-- History Page -->
+        <div id="historyPage" class="page-content hidden">
+            <section class="fade-in">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4 lg:mb-0">Riwayat Permintaan</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="loadHistory()" 
+                                class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                        </button>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="clearStudentFilters()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm">Reset Filter</button>
-                        <button onclick="sortStudentsByName()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm">Urutkan A-Z</button>
-                        <button onclick="sortStudentsByViolations()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">Urutkan Pelanggaran</button>
+                </div>
+
+                <!-- Filters Section -->
+                <div class="bg-white rounded-xl card-shadow p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Filter & Pencarian</h3>
+                        <button onclick="clearAllFilters()" 
+                                class="text-sm text-gray-600 hover:text-primary transition-colors">
+                            Reset Filter
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Search Input -->
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Cari nama, ID, atau deskripsi..." 
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">Semua Status</option>
+                            <option value="Menunggu">Menunggu</option>
+                            <option value="Dalam Proses">Dalam Proses</option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Ditolak">Ditolak</option>
+                        </select>
+
+                        <!-- Jenis Filter -->
+                        <select id="jenisFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">Semua Jenis</option>
+                            <option value="Barang">Barang</option>
+                            <option value="Perbaikan">Perbaikan</option>
+                        </select>
+
+                        <!-- Date Range -->
+                        <div class="flex space-x-2">
+                            <input type="date" id="dateFrom" placeholder="Dari tanggal" 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                            <input type="date" id="dateTo" placeholder="Sampai tanggal" 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div id="statisticsContainer" class="mt-6 grid grid-cols-2 md:grid-cols-6 gap-4">
+                        <div class="bg-blue-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="totalCount">0</div>
+                            <div class="text-sm text-blue-800">Total</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-yellow-600" id="menungguCount">0</div>
+                            <div class="text-sm text-yellow-800">Menunggu</div>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="prosesCount">0</div>
+                            <div class="text-sm text-blue-800">Proses</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-green-600" id="disetujuiCount">0</div>
+                            <div class="text-sm text-green-800">Disetujui</div>
+                        </div>
+                        <div class="bg-emerald-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-emerald-600" id="selesaiCount">0</div>
+                            <div class="text-sm text-emerald-800">Selesai</div>
+                        </div>
+                        <div class="bg-red-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-red-600" id="ditolakCount">0</div>
+                            <div class="text-sm text-red-800">Ditolak</div>
+                        </div>
                     </div>
                 </div>
-                <div class="mb-4 flex justify-between items-center">
-                    <p id="studentFilterInfo" class="text-sm text-gray-600">Menampilkan semua siswa</p>
-                    <p class="text-xs text-purple-600 bg-purple-50 px-3 py-1 rounded-full">📜 Scroll untuk melihat lebih banyak</p>
-                </div>
-                <div id="studentCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #9333ea #f3f4f6;">
-                    <!-- Student cards will be populated here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Analisis Data -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">📈 Analisis Data</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <h3 class="text-lg font-semibold mb-4">Jenis Pelanggaran Terbanyak</h3>
-                    <canvas id="violationTypeChart"></canvas>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <h3 class="text-lg font-semibold mb-4">Distribusi per Kelas</h3>
-                    <canvas id="classDistributionChart"></canvas>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <h3 class="text-lg font-semibold mb-4">Tren Pelanggaran</h3>
-                    <canvas id="trendChart"></canvas>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <h3 class="text-lg font-semibold mb-4">Siswa dengan Pelanggaran Terbanyak</h3>
-                    <canvas id="topStudentsChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Aktivitas Terbaru -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">🕒 Aktivitas Terbaru</h2>
-            <div class="bg-white rounded-xl p-6 shadow-lg">
-                <div id="recentActivities" class="space-y-4">
-                    <!-- Recent activities will be populated here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Form Input Section -->
-    <div id="input" class="section hidden container mx-auto px-6 py-8">
-        <div class="max-w-2xl mx-auto">
-            <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-8 shadow-lg">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">📝 Form Input Pelanggaran</h2>
                 
-                <form id="violationForm" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tahun Ajaran</label>
-                            <select id="tahunAjaran" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white">
-                                <option value="">Pilih Tahun Ajaran</option>
-                            </select>
+                <!-- Table Container -->
+                <div class="bg-white rounded-xl card-shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-blue-600 transition-colors" onclick="sortTable('idTransaksi')">
+                                        ID Transaksi
+                                        <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                        </svg>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-blue-600 transition-colors" onclick="sortTable('tanggalPengajuan')">
+                                        Tanggal
+                                        <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                        </svg>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-blue-600 transition-colors" onclick="sortTable('namaPengaju')">
+                                        Nama Pengaju
+                                        <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                        </svg>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-blue-600 transition-colors" onclick="sortTable('jenisPengajuan')">
+                                        Jenis
+                                        <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                        </svg>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium">Deskripsi</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-blue-600 transition-colors" onclick="sortTable('status')">
+                                        Status
+                                        <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                        </svg>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-8 text-center">
+                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                                        <p class="text-gray-600">Memuat data...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div id="paginationContainer" class="bg-gray-50 px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Menampilkan <span id="showingFrom">0</span> - <span id="showingTo">0</span> dari <span id="totalRecords">0</span> data
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Semester</label>
-                            <select id="semester" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white">
-                                <option value="">Pilih Semester</option>
-                                <option value="Semester 1">Semester 1</option>
-                                <option value="Semester 2">Semester 2</option>
-                            </select>
+                        <div class="flex space-x-2">
+                            <button onclick="changePage(-1)" id="prevBtn" 
+                                    class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Sebelumnya
+                            </button>
+                            <div id="pageNumbers" class="flex space-x-1"></div>
+                            <button onclick="changePage(1)" id="nextBtn" 
+                                    class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Selanjutnya
+                            </button>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
-                            <select id="kelas" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white" onchange="updateStudentList()">
-                                <option value="">Pilih Kelas</option>
-                                <option value="1">1</option>
-                                <option value="2A">2A</option>
-                                <option value="2B">2B</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8A">8A</option>
-                                <option value="8B">8B</option>
-                                <option value="9">9</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Siswa</label>
-                            <select id="namaSiswa" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white">
-                                <option value="">Pilih Siswa</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kejadian</label>
-                        <input type="date" id="tanggalKejadian" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-4">Aspek Pelanggaran</label>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="pelanggaran" value="Ikat Pinggang" class="w-5 h-5 text-purple-600 rounded-full">
-                                <span class="text-gray-700">Ikat Pinggang</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="pelanggaran" value="Dasi" class="w-5 h-5 text-purple-600 rounded-full">
-                                <span class="text-gray-700">Dasi</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="pelanggaran" value="Rambut" class="w-5 h-5 text-purple-600 rounded-full">
-                                <span class="text-gray-700">Rambut</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="pelanggaran" value="Rok" class="w-5 h-5 text-purple-600 rounded-full">
-                                <span class="text-gray-700">Rok</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="pelanggaran" value="Kaos Kaki" class="w-5 h-5 text-purple-600 rounded-full">
-                                <span class="text-gray-700">Kaos Kaki</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="pelanggaran" value="Sepatu" class="w-5 h-5 text-purple-600 rounded-full">
-                                <span class="text-gray-700">Sepatu</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div id="keterlambatanSection" class="hidden">
-                        <label class="flex items-center space-x-3 cursor-pointer mb-4">
-                            <input type="checkbox" id="keterlambatan" name="pelanggaran" value="Keterlambatan" class="w-5 h-5 text-purple-600 rounded-full" onchange="toggleKeterlambatanFields()">
-                            <span class="text-gray-700 font-medium">Keterlambatan</span>
-                        </label>
-                        <div id="keterlambatanFields" class="hidden space-y-4 ml-8">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Jam Kedatangan</label>
-                                <input type="time" id="jamKedatangan" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" readonly>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Terlambat</label>
-                                <textarea id="alasanTerlambat" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Masukkan alasan keterlambatan..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-8 rounded-xl font-semibold text-lg hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200">
-                        Kirim Laporan
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- History Section -->
-    <div id="history" class="section hidden container mx-auto px-6 py-8">
-        <div class="mb-6 flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">📋 Riwayat Laporan</h2>
-            <button onclick="refreshData()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Refresh Data</button>
-        </div>
-
-        <!-- Analisis Data Cards -->
-        <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Analisis Data</h3>
-            <div id="analysisCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Analysis cards will be populated here -->
-            </div>
-        </div>
-
-        <!-- Filters -->
-        <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <select id="filterSemester" class="px-4 py-2 border border-gray-300 rounded-lg">
-                    <option value="">Semua Semester</option>
-                    <option value="Semester 1">Semester 1</option>
-                    <option value="Semester 2">Semester 2</option>
-                </select>
-                <input type="text" id="filterNama" placeholder="Cari nama siswa..." class="px-4 py-2 border border-gray-300 rounded-lg">
-                <select id="filterKelas" class="px-4 py-2 border border-gray-300 rounded-lg">
-                    <option value="">Semua Kelas</option>
-                    <option value="1">1</option>
-                    <option value="2A">2A</option>
-                    <option value="2B">2B</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8A">8A</option>
-                    <option value="8B">8B</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                </select>
-                <div class="flex space-x-2">
-                    <input type="date" id="filterTanggalMulai" class="px-4 py-2 border border-gray-300 rounded-lg">
-                    <input type="date" id="filterTanggalAkhir" class="px-4 py-2 border border-gray-300 rounded-lg">
                 </div>
-            </div>
-            <button onclick="applyFilters()" class="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">Terapkan Filter</button>
+            </section>
         </div>
+    </main>
 
-        <!-- Total Pelanggaran Siswa Table -->
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Total Pelanggaran Siswa</h3>
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="overflow-x-auto" style="max-height: 500px;">
-                    <table class="w-full">
-                        <thead class="bg-gradient-to-r from-purple-500 to-pink-500 text-white sticky top-0">
-                            <tr>
-                                <th class="px-2 py-3 text-left text-xs font-medium uppercase">No</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium uppercase">Tahun Ajaran</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium uppercase">Semester</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium uppercase">Nama Siswa</th>
-                                <th class="px-2 py-3 text-left text-xs font-medium uppercase">Kelas</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium uppercase">Ikat Pinggang</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Status</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium uppercase">Dasi</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Status</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium uppercase">Rambut</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Status</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium uppercase">Rok</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Status</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium uppercase">Kaos Kaki</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Status</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium uppercase">Sepatu</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Status</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium uppercase">Terlambat</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Status</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Jam Kedatangan</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Alasan Keterlambatan</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Jumlah Laporan</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium uppercase">Total Pelanggaran</th>
-                            </tr>
-                        </thead>
-                        <tbody id="totalViolationTableBody" class="divide-y divide-gray-200">
-                            <!-- Total violation rows will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
             </div>
-        </div>
-
-        <!-- Riwayat Laporan Detail Table -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 Riwayat Laporan Detail</h3>
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="overflow-x-auto" style="max-height: 600px;">
-                    <table class="w-full">
-                        <thead class="bg-gray-50 sticky top-0">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">No</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tahun Ajaran</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Semester</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Siswa</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kelas</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ikat Pinggang</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dasi</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rambut</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rok</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kaos Kaki</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sepatu</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terlambat</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jam Kedatangan</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Alasan Keterlambatan</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jumlah Laporan</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Pelanggaran</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyTableBody" class="divide-y divide-gray-200">
-                            <!-- Table rows will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notification -->
-    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
-        <div class="bg-white border-l-4 border-green-500 rounded-lg shadow-lg p-4 max-w-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <span class="text-green-500 text-xl">✅</span>
-                </div>
-                <div class="ml-3 flex-1">
-                    <p id="notificationMessage" class="text-sm font-medium text-gray-900"></p>
-                </div>
-                <button onclick="hideNotification()" class="ml-4 text-gray-400 hover:text-gray-600">
-                    <span class="text-xl">×</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for violation details -->
-    <div id="violationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4 sticky top-0 bg-white pb-4 border-b">
-                    <h3 id="modalTitle" class="text-xl font-bold text-gray-800"></h3>
-                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold hover:bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center">×</button>
-                </div>
-                <div id="modalContent" class="space-y-4">
-                    <!-- Modal content will be populated here -->
-                </div>
-            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Berhasil!</h3>
+            <p class="text-gray-600 mb-6">Permintaan Anda telah berhasil disimpan ke Google Sheets</p>
+            <button onclick="closeModal()" 
+                    class="bg-primary hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                Tutup
+            </button>
         </div>
     </div>
 
     <script>
-        // Data siswa per kelas
-        const studentData = {
-            '1': ['Alesya Azzalea Kinara', 'Alvaro Theofilus Bethen', 'Aziel Gamaliel Benedict Haga Kore',
-        'Bella Gisca Tamara', 'Carlissa Davina Bolla', 'Christopher Julian Algio', 
-        'Damasus Devano Guard Sentosa', 'Darlene Abigail Djabumir', 'Freya Nathaniela Santoso',
-        'Gede Askara Radhika', 'Gianra Tallu Padang', 'Gilbert Pangeran', 'Githa Vanya Griselda Sewa',
-        'I Gusti Putu Rama Ananda Wirawan', 'Katharina Allegra Un', 'Maria Annora Latisha',
-        'Mariana Thimutia Q. Mahatata Jelahu', 'Muhammad Arrayyan Barraq', 'Nathania Yocelin Nay Genggor',
-        'Paskalita Molarose Darung', 'Philip Harvey Djehawan', 'Raison Maganta Sinurat',
-        'Shea Maresca Yeo', 'Shelomita Gabrielle Heavenly Gift', 'Vania Imelda Y. Tosi',
-        'Wisnu Dhirendra', 'Yohana Lucia Cundawan', 'Zeround Zinki Therik'],
-            '2A': ['Albertus Lexander Centaurus Muda', 'Arzan Rafif Raffasya', 'Christopher Alexander',
-        'Daniello Junior Purnomo', 'Dufresse Yoel Daputra Tumbir', 'Esperanza Inadine Buru',
-        'Eugenius Elghatan Pello', 'Faiqah Nathania Azzahra', 'Felicia Danastri Zivana Nandus',
-        'Gendhis Khusuma Ayu', 'Gilbert Julest Sae', 'Joshua Huang', 'Junipero Edgardo Beltran Mangku',
-        'Marquez Li Wei Konseng', 'Metodio Fourteen', 'Mikayla Athalia Davina Vos',
-        'Naura Natania Adista', 'Seanna Shannon Therik', 'Shela Novara Bolla', 'Yohanes Meison Bani'],
-            '2B': ['Aaron Dean Gilmon Taosu', 'Alena Pongantung', 'Alexander Leonidas Hibono',
-        'Anne Kimberly Silimalar', 'Axella Quinn Amora', 'Brigitha Cherysa Sokang',
-        'Charlotte Graciel Chandra', 'Clarissa Josephine Angela', 'Dave Noah Eleazar Pangarso',
-        'Evelyn Felicia Grace Theresia Ndagu', 'Hillary Bianca Thenario', 'Jessie Caroline Hauwta',
-        'Johanis Abhinaya Haga Kore', 'Leonardo Aprigliano', 'Manuella Dewi Chrissy Sijabat',
-        'Mikhaela Leticia Amor Missa', 'Nathanael Aditya Danu', 'Nathanael Aldrich Tjundawan',
-        'Putu Adi Dharma Yasa', 'Rafael Alexander Bonaventura Latubatara'],
-            '3': ['Absaloom Beryl Anin', 'Alexander James Ulumbu', 'Anastasya Wela Naicha Busa',
-        'Angeliane Yemima Wilonika Lerrick', 'Antony Arga Lapolla', 'Aquila Aska Syaranka Kulas',
-        'Audrey Ekaristi Un', 'Casey Luturmas', 'Cassie Annabelle Shianto', 'Castarica Ojo',
-        'Ceilyn Bianca Christy Pah', 'Chrysila Anora Gretasha', 'Clairine Lasma Kinawa Sinurat',
-        'Clark Kent Carlos', 'Danira Ayudisa Krishan', 'Darlton Lianto Angliwarman',
-        'Emanuella Selomita Tambelina Montini', 'Gabriella Hasiholan Simanjuntak',
-        'Geraldo Nathanael Hauwta', 'Jayden Maximillian Tjio', 'Kassia Aliza Sene',
-        'Kenly Jonathan Adniel Siok', 'Leonel Adiputra Go', 'Leonisa Brenda Valentine Henri',
-        'Marcorio Evanyo Jehabut', 'Maria Mater Dei Meya Nanlohy', 'Maria Mikhayla Pramantya Be',
-        'Mercy Calya Timothy Tan', 'Rangga Mahesa Kadang', 'Stacey Wahyudi'],
-            '4': ['Aaron Leonard Barends', 'Abigael Nathania Purnomo', 'Adrian Max Fitzgerald',
-        'Andiyanti Putri Kristianto', 'Anthony Malvin Go Henoek', 'Bonifasius Elnatan Surman',
-        'Charsten Edgar Mathew Baitanu', 'Chlara Elzira Kyla Hagakore', 'Clara Adeline',
-        'Daniel Bryan Hagur Angliwarman', 'Dino Pratama Dolok Saribu', 'Drew Hosea Sijabat',
-        'Gavriella Falora D\'maria', 'Geraldo Gerriyanto Sokang', 'Giacinta Lulu Marvella Suhardi',
-        'Gibran Mustafa Alfathar Maulana', 'Gisella Claire Adeline', 'Joshua Sutanto',
-        'Kiersten Bellvania Tukano', 'Lovely Ong Silimalar', 'Maria Orzora Vionetta',
-        'Mellody A. O. De Maria Nggoek', 'Moeren Chrisan Buthe', 'Nathania Emmarienca Tjundawan',
-        'Nicholas Elkana Saputra Tumbir', 'Oktaviana Sivliani Radas', 'Omer Laa',
-        'Rebecca Risya Lapolla', 'Theresia Damanica Nona'],
-            '5': ['Achazia Deana Hanna Marpaung', 'Adelia Bhudhe', 'Alvaro Ben Barends',
-        'Aslantheo Bili Ndamalero', 'Audrey Sutedjo', 'Baiq Calya Dihyan Lutuhayu',
-        'Christian Aprilliano Gunawan', 'Clarissa Angeline Djami', 'Daniel Jidan Nomer',
-        'Dannis Prameswari Krishan', 'Diandra Annaya Ridwansyah', 'Don Bosco Alenta Bernardino',
-        'Elisabeth Nathania Meiying', 'Gabriel Orlando Fredyan Vos', 'Gede Rendra Arjuna Permana',
-        'Gilbertha Bagus Alessandra', 'Johfran Alprisno Huki Mone', 'Jonathan Huang',
-        'Lincoln Asher Franciszek Lewandowski', 'Margaret Selviamor Rahel Gultom',
-        'Marjorie Nicolline Briena Sianatan', 'Maryam Sudjateruna', 'Michelle Kaylin Valery',
-        'Raphael Dastan Hibono', 'Reynard Renansal Therik', 'Teresa Shaqeela Mantero',
-        'Tia Kristiani Ataupah', 'Violette Abigail Prisha'],
-            '6': ['Agatha Bernessa Vania', 'Ananda Mikaela Reiwuty', 'Anna Belarmin Cyntia Busa',
-        'Arnoldus Christian Sodo', 'Aurelia Cetta Erlinda', 'Ave Maria Gracia Plena',
-        'Christiana Maureen Liemanto', 'Christiano Alvaroyen Diavera Robert',
-        'Christmas Leonardus Belang Kabelen', 'Clairine Josephine', 'Darlene Wisely Lianto Angliwarman',
-        'Fransiska Nindyta Moeder Su', 'Gezrai Tallu Padang', 'Humbelina Elonaku',
-        'Jofiel Bennedict Elryan Liem', 'Jordan Moses Makaira', 'Jorsh Mario Bergolio Goldy',
-        'Julio Bradley Wilson Terisno', 'Maria Anjeli Manalu', 'Naysa Avariella Lonta',
-        'Nikolaas Jasper Sutanto', 'Putu Ayu Mirah Aolani Darmayasa', 'Rudolf Alexandro Lobang',
-        'Susana Olivvia Kamenglang', 'Tadeus Raymond Surman', 'Wilhelmina Queenayra Anabelle Mao',
-        'Yuanita Rosari Gunawan'],
-            '7': ['Aileran Gizane Sahadoen', 'Alvaro Jonathan', 'Anabelle Kareen Henoek',
-        'Arcadia Nayottama Ridwansyah', 'Brayden Ambrosio Tukano', 'Calistus Caravario Salvadrian',
-        'Christopher Leonard Djami', 'Claritha Risviana Djagora Ritu', 'Cresensia Erlinda Daud',
-        'Deutlin Celestha Syukur', 'Dominique S S Terisno', 'Florenzia Alya Harno',
-        'Fransiskus Jerryanto Sokang', 'Helena Aleonisia Welajaya', 'Jason Yohanes Frederik',
-        'Jenoah Jhosua Salda Padama', 'Jesica Victoriana Alison', 'Jovanna Dominique Mantara',
-        'Kaleb Anggriawan Yasin', 'Kevin Andrew Xavier', 'Leira Iren G Gusti',
-        'Maleakhi Dandre Runtuwene', 'Marciano Nicholson Leroy Sianatan',
-        'Margaretha C. Francois Nanlohy', 'Mario Innocenzt De Eduard', 'Mayditha Gicella Putri Junedy',
-        'Mechtildis Claudya Diaz', 'Naomi Yeira Mazara', 'Pierrens F. Olapayi',
-        'Rafael Karmelio Delima', 'Roswita E. Cundawan', 'Sheryl Felicia Hou',
-        'Simfrosa Derra Garung', 'William N. Suwito', 'Yacaya Natama'],
-            '8A': ['Alvasean Hermanus Mudha Boro', 'Andra Deva Satria', 'Arga Jeviezha Nesi',
-        'Charlotte Medeline Baitanu', 'Dustin Fernandes Condro', 'Jacolby Jiro Czar Nday',
-        'Julian Christianto Hendrik Gono', 'Keisya Elvina Keya', 'Kenneth Emanuel Mone',
-        'Lalu Bilal Grafirath Pratama', 'Malka Syarief Firdaus', 'Maria Alexandria Utamin',
-        'Maria Brisha Kartika Rasyid', 'Maria Elizabeth Setyaningsih', 'Maritza Anayara Laa',
-        'Martin Sadrian Sae', 'Michael Gani Trianggana', 'Nyssa Marialies Siagian',
-        'Putri Natalia K. Huki Mone', 'Rosalia Fiorenza Darut', 'Rosalina Andriani',
-        'Vania Alexandra Lobang', 'Viggo Pratama Wissendorff Pedersen', 'Yuliana Dalva Sanggu Semi',
-        'Aaron Manurung'],
-            '8B': ['Alexander Arthur Djehawan', 'Anak Agung Istri Bulan Hindi Oktariani',
-        'Andreas Iniesta Doloksaribu', 'Angela Tracy Liemanto', 'Angelino Dirgahary Arson',
-        'Bernadette Revalda Liko Buga', 'Christania Calista Surijanto',
-        'Christin Atanasia Q.M. Jelahu', 'Fransisco Lionel Mantero', 'Gio Rafael Chandra',
-        'Govin Julian Chandra', 'Jedward Bradly Elia Letik', 'Joanne Cherise Manuella',
-        'Leon Donatus D. Lewandouski', 'Maria Alicia Sutanto', 'Michael Patrick Pangalila',
-        'Ni Komang Mahadevi Aswanty', 'Nicholas Agusty Mahol', 'Nicoletta Cheryl Sutanto',
-        'Yohanesta Keyrana Pandang'],
-            '9': ['Aletha Alodya Bethen', 'Bryan Rheyvangelio Lonta', 'Carryn Marciella Lim', 'Christine Sutanto',
-        'Claire Annabelle Shianto', 'Clariss Fransiska Simuk Tegomes', 'Claudia Miracle Baitanu',
-        'Damian De Veuster Ngambut', 'Emillie Chantyqa Dhevantrie Jalesy', 'Emina Eugenia Sudjarwo',
-        'Fabiola Veneranda Gisela Latubatara', 'Felicia Apriliana Endiny', 'Felisitas Mariana Grace',
-        'Felixcia Qeyla Kalista Oktaviani', 'Frederico De Eduard', 'George Sebastian Frederik',
-        'Kennard Kenward Therik', 'Magdalena Aprilia Duka Auw', 'Marcello Adya Arkananta',
-        'Maria Ariana Mali', 'Maria Ariani Mali', 'Princess Alexis Hoo', 'Priscilla Keysha Terisno',
-        'Queela Jessica Mince Letik', 'Redric Triturius', 'Richardo Javares Vier Junior',
-        'Rivaldo Marten Kamenglang', 'Sharon Jusuf Lam', 'Theresia Anita Sodo',
-        'Timotius Christian Reynard Aritona', 'Vincenzo Dalimartin'],
-            '10': ['Agustino Jastin Tasman', 'Bayu Octavianus Mandela', 'Chelorita Ayana Putri Junedy',
-        'Christian Baptista Montini', 'Devan Emeral Aldiano Tungga', 'Gordi Hariyanto',
-        'Henri Leonardo Sarwijaya', 'Liony Skolastika Maspekeh', 'Marcellino Alvaro Haman',
-        'Maria Nathania Bonita Day', 'Michele Alexa Nayla Jeramun', 'Monica Puspita Indah Purwaningsih',
-        'Ni Kadek Angela Suryani Dharma', 'Petera Penata', 'Puarla Ifa Jconya', 'Putri',
-        'Renelisabeth Queensha Latif Naibaho', 'Yanuarius Septiano Hambut'],
-            '11': ['Aloisia Maria Elisabeth Lewandowska', 'Beatriks Kiran Maharani',
-        'Brigita Nathania Aleta Chandra Rasyid', 'Cecilia Putri Aquino Novaristi Wadhi',
-        'Corazon Nicole Tamur', 'Dulce Birggita Evelyn', 'Elisabeth Yohana Sodo',
-        'Helena Christiani Bellarisa', 'Ignasio Malvino Madosani', 'Ignasius Azevedo Ngambut',
-        'Joana Lucia De Chantal', 'Juan Abel Herewila', 'Juniarto Yutra Sae', 'Kenzo Christopher Harianto',
-        'Leokrita C. Adryufi Arjon', 'Maria Aphrodite Cally Jalesy', 'Mariana Adella Clementine Lawu',
-        'Naila Messika Hendrianto', 'Ni Kadek Mischa Clarita', 'Patricia Nathaniela Vanya Azarine',
-        'Rumondang Loy Marpaung', 'Sefarinus Musa Soares'],
-            '12': ['Aldio Alberto Tokan', 'Alessio Lionel Budiman', 'Alexandria Putri Virginia Lobo',
-        'Amanda Sutedjo', 'Angel Naomi Putri Yuniar Ludji', 'Casey Putra Djaja Moll',
-        'Felixiano Januarsen Farsianto Putra', 'Graldo Neorama James', 'Jasmine May Chaysandra Wathumlawar',
-        'Jonathan Radja Putra Lado', 'Livya Chatherine Imelda Djami', 'Margaret Dunan Tamur',
-        'Maria Gloria Dian Jegambut', 'Marietta Callysta Dedipaty', 'Marietta Christabel Dedipaty',
-        'Meylan Luvyana Hillary Djehadut', 'Ni Putu Chatrine Putri Yanti Dharma',
-        'Patrisia Thesa Cundawan', 'Perseveranda Gwenaoky Sahadoen', 'Priscila Caresta Putri Jerau',
-        'Rainier Roger Gunawan', 'Simon Petra', 'Yulius Blastarano Rezky Baut',
-        'Yulius Kurt Basang', 'Yustina Devita Dule Muhu', 'Christian Manurung']
-        };
+        // Google Apps Script URL
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVJDuWF_tX8h7v2PoeLLwye7K73hCJ0I--5CqQ77Vcy1ISzGTPj8iWBUfNE2Kodrk/exec';
 
-        // Sample data for demonstration
-        let violationData = [];
-        let currentSection = 'dashboard';
-
-        // Initialize app
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
+            setCurrentDate();
+            loadHistory();
         });
 
-        async function initializeApp() {
-            populateYearOptions();
-            setCurrentDate();
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
-            
-            // Load data from spreadsheet first, fallback to sample data
-            await loadDataFromSpreadsheet();
-            updateDashboard();
-            showSection('dashboard');
-        }
-
-        function populateYearOptions() {
-            const yearSelect = document.getElementById('tahunAjaran');
-            const currentYear = new Date().getFullYear();
-            
-            for (let year = currentYear; year <= 2049; year++) {
-                const option = document.createElement('option');
-                option.value = `${year}/${year + 1}`;
-                option.textContent = `${year}/${year + 1}`;
-                yearSelect.appendChild(option);
-            }
-        }
-
+        // Set current date
         function setCurrentDate() {
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('tanggalKejadian').value = today;
+            document.getElementById('tanggalPengajuan').value = today;
         }
 
-        function updateCurrentTime() {
-            const now = new Date();
-            const timeString = now.toTimeString().split(' ')[0];
-            document.getElementById('jamKedatangan').value = timeString;
-        }
-
-        function updateStudentList() {
-            const kelasSelect = document.getElementById('kelas');
-            const siswaSelect = document.getElementById('namaSiswa');
-            const selectedKelas = kelasSelect.value;
-
-            siswaSelect.innerHTML = '<option value="">Pilih Siswa</option>';
-
-            if (selectedKelas && studentData[selectedKelas]) {
-                studentData[selectedKelas].forEach(nama => {
-                    const option = document.createElement('option');
-                    option.value = nama;
-                    option.textContent = nama;
-                    siswaSelect.appendChild(option);
-                });
-            }
-        }
-
-        function toggleKeterlambatanFields() {
-            const checkbox = document.getElementById('keterlambatan');
-            const fields = document.getElementById('keterlambatanFields');
+        // Navigation
+        function showPage(page) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.getElementById(page + 'Page').classList.remove('hidden');
             
-            if (checkbox.checked) {
-                fields.classList.remove('hidden');
-                updateCurrentTime();
-            } else {
-                fields.classList.add('hidden');
-            }
-        }
-
-        function showSection(sectionName) {
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.add('hidden');
-            });
-
-            // Show selected section
-            document.getElementById(sectionName).classList.remove('hidden');
-
-            // Update navigation
+            // Update nav buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('border-b-2', 'border-purple-600', 'text-purple-600');
+                btn.classList.remove('text-primary');
                 btn.classList.add('text-gray-600');
             });
-
-            event.target.classList.add('border-b-2', 'border-purple-600', 'text-purple-600');
             event.target.classList.remove('text-gray-600');
-
-            currentSection = sectionName;
-
-            if (sectionName === 'dashboard') {
-                updateDashboard();
-            } else if (sectionName === 'history') {
-                updateHistoryTable();
+            event.target.classList.add('text-primary');
+            
+            if (page === 'history') {
+                loadHistory();
             }
         }
 
-        // Add keterlambatan checkbox to form
-        document.addEventListener('DOMContentLoaded', function() {
-            const keterlambatanSection = document.getElementById('keterlambatanSection');
-            keterlambatanSection.classList.remove('hidden');
-        });
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
 
-        // Google Apps Script Web App URL - Ganti dengan URL deployment Anda
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeUWIUodQCkVMB-lbQCA9Kiv-Mjp77W_R-AEKE1dgFxa3yxhdzzXzh13GQwjyJ7zMM/exec';
+        // Generate Transaction ID
+        function generateTransactionId() {
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
+            const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `SLHLB-REQ-${dateStr}-${randomNum}`;
+        }
 
-        // Form submission
-        document.getElementById('violationForm').addEventListener('submit', async function(e) {
+        // Form submission with Google Sheets integration
+        document.getElementById('requestForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
-            submitButton.textContent = 'Mengirim...';
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Mengirim ke Google Sheets...
+                </div>
+            `;
             submitButton.disabled = true;
             
-            const violations = [];
-            
-            // Get selected violations
-            document.querySelectorAll('input[name="pelanggaran"]:checked').forEach(checkbox => {
-                violations.push(checkbox.value);
-            });
-
-            if (violations.length === 0) {
-                showNotification('Pilih minimal satu jenis pelanggaran!', 'error');
-                submitButton.textContent = originalText;
-                submitButton.disabled = false;
-                return;
-            }
-
-            // Format time to HH.MM.SS for spreadsheet
-            const jamKedatangan = document.getElementById('jamKedatangan').value;
-            const formattedJamKedatangan = jamKedatangan ? jamKedatangan.replace(/:/g, '.') : '';
-
-            const data = {
-                tahunAjaran: document.getElementById('tahunAjaran').value,
-                semester: document.getElementById('semester').value,
-                tanggalKejadian: document.getElementById('tanggalKejadian').value,
-                namaSiswa: document.getElementById('namaSiswa').value,
-                kelas: document.getElementById('kelas').value,
-                violations: violations,
-                jamKedatangan: formattedJamKedatangan,
-                alasanTerlambat: document.getElementById('alasanTerlambat').value || ''
+            const formData = {
+                action: 'submit',
+                idTransaksi: generateTransactionId(),
+                tanggalPengajuan: document.getElementById('tanggalPengajuan').value,
+                namaPengaju: document.getElementById('namaPengaju').value,
+                jenisPengajuan: document.getElementById('jenisPengajuan').value,
+                deskripsi: document.getElementById('deskripsi').value,
+                status: 'Menunggu',
+                tanggalUpdateStatus: new Date().toISOString().split('T')[0],
+                keteranganAdmin: ''
             };
 
             try {
-                // Send data to Google Sheets
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(formData),
+                    mode: 'no-cors' // Required for Google Apps Script
                 });
-
-                // Since we're using no-cors, we can't read the response
-                // But we assume success if no error is thrown
-                showNotification('Laporan berhasil disimpan ke Google Spreadsheet!', 'success');
-                this.reset();
+                
+                console.log('Data berhasil dikirim ke Google Sheets:', formData);
+                
+                // Show success modal
+                document.getElementById('successModal').classList.remove('hidden');
+                document.getElementById('successModal').classList.add('flex');
+                
+                // Reset form
+                document.getElementById('requestForm').reset();
                 setCurrentDate();
-                updateCurrentTime();
                 
-                // Hide keterlambatan fields
-                document.getElementById('keterlambatanFields').classList.add('hidden');
-                
-                // Refresh data from spreadsheet
-                await loadDataFromSpreadsheet();
-                updateDashboard();
+                // Refresh history after successful submission
+                setTimeout(() => {
+                    if (!document.getElementById('historyPage').classList.contains('hidden')) {
+                        loadHistory();
+                    }
+                }, 2000);
                 
             } catch (error) {
+                alert('Terjadi kesalahan saat mengirim data ke Google Sheets: ' + error.message);
                 console.error('Error:', error);
-                showNotification('Data Terkoneksi dengan Baik.', 'error');
+            } finally {
+                // Reset button
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
-            
-            submitButton.textContent = originalText;
-            submitButton.disabled = false;
         });
 
-        // Load data from Google Spreadsheet
-        async function loadDataFromSpreadsheet() {
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL + '?action=getData', {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.success && result.data) {
-                        // Convert spreadsheet data to our format
-                        violationData = [];
-                        
-                        // Skip header row (index 0)
-                        for (let i = 1; i < result.data.length; i++) {
-                            const row = result.data[i];
-                            if (row[0]) { // Check if ID exists
-                                const violations = [];
-                                
-                                // Check each violation type (columns 6-12)
-                                if (row[6] && row[6] > 0) violations.push('Ikat Pinggang');
-                                if (row[7] && row[7] > 0) violations.push('Dasi');
-                                if (row[8] && row[8] > 0) violations.push('Rambut');
-                                if (row[9] && row[9] > 0) violations.push('Rok');
-                                if (row[10] && row[10] > 0) violations.push('Kaos Kaki');
-                                if (row[11] && row[11] > 0) violations.push('Sepatu');
-                                if (row[12] && row[12] > 0) violations.push('Keterlambatan');
-                                
-                                // Convert HH.MM.SS back to HH:MM:SS for display
-                                const jamKedatangan = row[13] ? row[13].replace(/\./g, ':') : '';
+        // Global variables for table functionality
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let sortColumn = '';
+        let sortDirection = 'asc';
 
-                                violationData.push({
-                                    id: row[0],
-                                    tahunAjaran: row[1] || '',
-                                    semester: row[2] || '',
-                                    tanggalKejadian: row[3] || '',
-                                    namaSiswa: row[4] || '',
-                                    kelas: row[5] || '',
-                                    violations: violations,
-                                    jamKedatangan: jamKedatangan,
-                                    alasanTerlambat: row[14] || '',
-                                    timestamp: row[16] || new Date().toISOString()
-                                });
-                            }
-                        }
-                        
-                        console.log('Data berhasil dimuat dari spreadsheet:', violationData.length, 'records');
-                    }
+
+
+        // Load history from Google Sheets
+        async function loadHistory() {
+            const tableBody = document.getElementById('historyTableBody');
+            
+            // Show loading
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-4 py-8 text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p class="text-gray-600">Memuat data dari Google Sheets...</p>
+                    </td>
+                </tr>
+            `;
+            
+            try {
+                const response = await fetch(APPS_SCRIPT_URL + '?action=get');
+                const result = await response.json();
+                
+                if (result.success) {
+                    allData = result.data;
+                    applyFilters();
                 } else {
-                    throw new Error('Gagal mengambil data dari spreadsheet');
+                    throw new Error(result.message || 'Gagal memuat data');
                 }
+                
             } catch (error) {
-                console.error('Error loading data from spreadsheet:', error);
-                // Load sample data as fallback
-                loadSampleData();
+                console.error('Error loading history:', error);
+                
+                // Show demo data as fallback
+                allData = [
+                    {
+                        idTransaksi: 'SLHLB-REQ-20241201-001',
+                        namaPengaju: 'Ahmad Rizki',
+                        jenisPengajuan: 'Barang',
+                        deskripsi: 'Laptop untuk keperluan kerja divisi IT',
+                        status: 'Selesai',
+                        tanggalPengajuan: '2024-12-01',
+                        keteranganAdmin: 'Laptop telah diterima dan siap digunakan'
+                    },
+                    {
+                        idTransaksi: 'SLHLB-REQ-20241130-002',
+                        namaPengaju: 'Siti Nurhaliza',
+                        jenisPengajuan: 'Perbaikan',
+                        deskripsi: 'Perbaikan AC ruang meeting lantai 2',
+                        status: 'Dalam Proses',
+                        tanggalPengajuan: '2024-11-30',
+                        keteranganAdmin: 'Sedang menunggu teknisi'
+                    },
+                    {
+                        idTransaksi: 'SLHLB-REQ-20241129-003',
+                        namaPengaju: 'Budi Santoso',
+                        jenisPengajuan: 'Barang',
+                        deskripsi: 'Printer untuk divisi keuangan',
+                        status: 'Disetujui',
+                        tanggalPengajuan: '2024-11-29',
+                        keteranganAdmin: 'Disetujui untuk pembelian'
+                    },
+                    {
+                        idTransaksi: 'SLHLB-REQ-20241128-004',
+                        namaPengaju: 'Maya Sari',
+                        jenisPengajuan: 'Perbaikan',
+                        deskripsi: 'Perbaikan lampu ruang kerja',
+                        status: 'Ditolak',
+                        tanggalPengajuan: '2024-11-28',
+                        keteranganAdmin: 'Budget tidak tersedia'
+                    },
+                    {
+                        idTransaksi: 'SLHLB-REQ-20241127-005',
+                        namaPengaju: 'Andi Pratama',
+                        jenisPengajuan: 'Barang',
+                        deskripsi: 'Kursi ergonomis untuk workstation',
+                        status: 'Menunggu',
+                        tanggalPengajuan: '2024-11-27',
+                        keteranganAdmin: ''
+                    }
+                ];
+                
+                // Show warning message
+                const warningRow = `
+                    <tr>
+                        <td colspan="7" class="px-4 py-3">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    <p class="text-yellow-800 text-sm">
+                                        Tidak dapat terhubung ke Google Sheets. Menampilkan data demo.
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                
+                applyFilters();
             }
         }
 
-        function loadSampleData() {
-            // Load sample data as fallback
-            violationData = [
-                {
-                    id: '1',
-                    tahunAjaran: '2024/2025',
-                    semester: 'Semester 1',
-                    tanggalKejadian: '2024-01-15',
-                    namaSiswa: 'Ahmad Rizki',
-                    kelas: '1',
-                    violations: ['Ikat Pinggang', 'Dasi'],
-                    jamKedatangan: '07:30:00',
-                    alasanTerlambat: '',
-                    timestamp: '2024-01-15T07:30:00.000Z'
-                },
-                {
-                    id: '2',
-                    tahunAjaran: '2024/2025',
-                    semester: 'Semester 1',
-                    tanggalKejadian: '2024-01-16',
-                    namaSiswa: 'Siti Nurhaliza',
-                    kelas: '1',
-                    violations: ['Keterlambatan'],
-                    jamKedatangan: '07:45:00',
-                    alasanTerlambat: 'Macet di jalan',
-                    timestamp: '2024-01-16T07:45:00.000Z'
-                }
-            ];
-            console.log('Sample data loaded as fallback');
-        }
+        // Apply all filters and update display
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const jenisFilter = document.getElementById('jenisFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
 
-        function updateDashboard() {
-            updateSummaryCards();
-            updateStudentCards();
-            updateCharts();
-            updateRecentActivities();
-        }
+            filteredData = allData.filter(item => {
+                // Search filter
+                const searchMatch = !searchTerm || 
+                    (item.idTransaksi || '').toLowerCase().includes(searchTerm) ||
+                    (item.namaPengaju || '').toLowerCase().includes(searchTerm) ||
+                    (item.deskripsi || '').toLowerCase().includes(searchTerm);
 
-        function updateSummaryCards() {
-            // Get the same data structure as Total Pelanggaran Siswa table
-            const studentViolationCounts = {};
-            
-            violationData.forEach(record => {
-                const key = `${record.namaSiswa}_${record.kelas}_${record.tahunAjaran}_${record.semester}`;
-                if (!studentViolationCounts[key]) {
-                    studentViolationCounts[key] = {
-                        nama: record.namaSiswa,
-                        kelas: record.kelas,
-                        tahunAjaran: record.tahunAjaran,
-                        semester: record.semester,
-                        'Ikat Pinggang': 0,
-                        'Dasi': 0,
-                        'Rambut': 0,
-                        'Rok': 0,
-                        'Kaos Kaki': 0,
-                        'Sepatu': 0,
-                        'Keterlambatan': 0,
-                        records: []
-                    };
-                }
-                
-                record.violations.forEach(violation => {
-                    studentViolationCounts[key][violation]++;
-                });
-                
-                studentViolationCounts[key].records.push(record);
+                // Status filter
+                const statusMatch = !statusFilter || item.status === statusFilter;
+
+                // Jenis filter
+                const jenisMatch = !jenisFilter || item.jenisPengajuan === jenisFilter;
+
+                // Date range filter
+                const itemDate = item.tanggalPengajuan;
+                const dateFromMatch = !dateFrom || itemDate >= dateFrom;
+                const dateToMatch = !dateTo || itemDate <= dateTo;
+
+                return searchMatch && statusMatch && jenisMatch && dateFromMatch && dateToMatch;
             });
 
-            const statusCounts = {
-                total: violationData.length,
-                teguran: 0,
-                wk: 0,
-                detensi1: 0,
-                detensi2: 0,
-                dipulangkan: 0
+            // Apply sorting
+            if (sortColumn) {
+                filteredData.sort((a, b) => {
+                    let aVal = a[sortColumn] || '';
+                    let bVal = b[sortColumn] || '';
+                    
+                    if (sortColumn === 'tanggalPengajuan') {
+                        aVal = new Date(aVal);
+                        bVal = new Date(bVal);
+                    }
+                    
+                    if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            updateStatistics();
+            updateTable();
+            updatePagination();
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const stats = {
+                total: filteredData.length,
+                menunggu: filteredData.filter(item => item.status === 'Menunggu').length,
+                proses: filteredData.filter(item => item.status === 'Dalam Proses').length,
+                disetujui: filteredData.filter(item => item.status === 'Disetujui').length,
+                selesai: filteredData.filter(item => item.status === 'Selesai').length,
+                ditolak: filteredData.filter(item => item.status === 'Ditolak').length
             };
 
-            // Calculate status counts from the same data as Total Pelanggaran Siswa table
-            Object.values(studentViolationCounts).forEach(student => {
-                const violationTypes = ['Ikat Pinggang', 'Dasi', 'Rambut', 'Rok', 'Kaos Kaki', 'Sepatu', 'Keterlambatan'];
-                
-                violationTypes.forEach(violationType => {
-                    const count = student[violationType];
-                    const status = getStatus(count);
-                    
-                    if (status === 'Teguran Lisan & Pencatatan') statusCounts.teguran++;
-                    else if (status === 'Bertemu WK & Pencatatan') statusCounts.wk++;
-                    else if (status === 'Detensi I') statusCounts.detensi1++;
-                    else if (status === 'Detensi II') statusCounts.detensi2++;
-                    else if (status === 'Dipulangkan') statusCounts.dipulangkan++;
-                });
-            });
-
-            document.getElementById('totalReports').textContent = statusCounts.total;
-            document.getElementById('teguranCount').textContent = statusCounts.teguran;
-            document.getElementById('wkCount').textContent = statusCounts.wk;
-            document.getElementById('detensi1Count').textContent = statusCounts.detensi1;
-            document.getElementById('detensi2Count').textContent = statusCounts.detensi2;
-            document.getElementById('dipulangkanCount').textContent = statusCounts.dipulangkan;
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('menungguCount').textContent = stats.menunggu;
+            document.getElementById('prosesCount').textContent = stats.proses;
+            document.getElementById('disetujuiCount').textContent = stats.disetujui;
+            document.getElementById('selesaiCount').textContent = stats.selesai;
+            document.getElementById('ditolakCount').textContent = stats.ditolak;
         }
 
-        function getStatus(count) {
-            if (count === 0) return '-';
-            if (count <= 2) return 'Teguran Lisan & Pencatatan';
-            if (count === 3) return 'Bertemu WK & Pencatatan';
-            if (count === 4) return 'Detensi I';
-            if (count === 5) return 'Detensi II';
-            return 'Dipulangkan';
-        }
+        // Update table display
+        function updateTable() {
+            const tableBody = document.getElementById('historyTableBody');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
 
-        function updateStudentCards() {
-            populateStudentYearFilter();
-            const container = document.getElementById('studentCards');
-            const studentSummary = {};
-
-            violationData.forEach(record => {
-                const key = `${record.namaSiswa}_${record.kelas}_${record.tahunAjaran}_${record.semester}`;
-                if (!studentSummary[key]) {
-                    studentSummary[key] = {
-                        nama: record.namaSiswa,
-                        kelas: record.kelas,
-                        tahunAjaran: record.tahunAjaran,
-                        semester: record.semester,
-                        totalPelanggaran: 0,
-                        records: []
-                    };
-                }
-                studentSummary[key].totalPelanggaran += record.violations.length;
-                studentSummary[key].records.push(record);
-            });
-
-            // Store all students for filtering
-            window.allStudents = Object.values(studentSummary);
-            
-            // Display all students initially
-            displayStudentCards(window.allStudents);
-            updateStudentFilterInfo(window.allStudents.length, window.allStudents.length);
-        }
-
-        function displayStudentCards(students) {
-            const container = document.getElementById('studentCards');
-            container.innerHTML = '';
-            
-            if (students.length === 0) {
-                container.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">Tidak ada siswa yang ditemukan</div>';
+            if (pageData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center">
+                            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p class="text-gray-500">Tidak ada data yang sesuai dengan filter</p>
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
-            // Sort by latest activity and show only first 10 for initial display
-            const sortedStudents = students.sort((a, b) => {
-                const latestA = Math.max(...a.records.map(r => new Date(r.timestamp)));
-                const latestB = Math.max(...b.records.map(r => new Date(r.timestamp)));
-                return latestB - latestA;
-            });
-
-            // Display all students but with scroll
-            sortedStudents.forEach(student => {
-                const card = document.createElement('div');
-                card.className = 'bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg card-hover cursor-pointer border border-gray-200';
-                card.onclick = () => showStudentDetails(student);
-                
-                const violationColor = student.totalPelanggaran > 10 ? 'text-red-600' : 
-                                     student.totalPelanggaran > 5 ? 'text-orange-600' : 'text-purple-600';
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-semibold text-gray-800">${student.nama}</h4>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Kelas ${student.kelas}</span>
-                    </div>
-                    <div class="space-y-1">
-                        <p class="text-xs text-gray-600">${student.tahunAjaran} - ${student.semester}</p>
-                        <p class="text-sm text-gray-600">${student.records.length} Laporan</p>
-                        <p class="text-lg font-bold ${violationColor} mt-2">${student.totalPelanggaran} Pelanggaran</p>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+            tableBody.innerHTML = pageData.map((item, index) => `
+                <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors">
+                    <td class="px-4 py-3 text-sm font-mono text-gray-600">${item.idTransaksi || item.idtransaksi || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${formatDate(item.tanggalPengajuan || item.tanggalpengajuan)}</td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.namaPengaju || item.namapengaju || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${getJenisColor(item.jenisPengajuan || item.jenispengajuan)}">
+                            ${item.jenisPengajuan || item.jenispengajuan || '-'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900 max-w-xs">
+                        <div class="truncate" title="${item.deskripsi || '-'}">${item.deskripsi ? (item.deskripsi.length > 50 ? item.deskripsi.substring(0, 50) + '...' : item.deskripsi) : '-'}</div>
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}">
+                            ${item.status || '-'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <button onclick="viewDetail('${item.idTransaksi || item.idtransaksi}')" 
+                                class="text-primary hover:text-blue-600 font-medium">
+                            Detail
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        function populateStudentYearFilter() {
-            const yearFilter = document.getElementById('studentYearFilter');
-            const years = [...new Set(violationData.map(record => record.tahunAjaran))].sort();
-            
-            // Clear existing options except the first one
-            yearFilter.innerHTML = '<option value="">Semua Tahun Ajaran</option>';
-            
-            years.forEach(year => {
-                if (year) {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.textContent = year;
-                    yearFilter.appendChild(option);
-                }
-            });
-        }
+        // Update pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const startRecord = filteredData.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+            const endRecord = Math.min(currentPage * itemsPerPage, filteredData.length);
 
-        function filterStudentData() {
-            if (!window.allStudents) return;
-            
-            const nameFilter = document.getElementById('studentNameFilter').value.toLowerCase();
-            const classFilter = document.getElementById('studentClassFilter').value;
-            const semesterFilter = document.getElementById('studentSemesterFilter').value;
-            const yearFilter = document.getElementById('studentYearFilter').value;
-            
-            const filteredStudents = window.allStudents.filter(student => {
-                const matchName = !nameFilter || student.nama.toLowerCase().includes(nameFilter);
-                const matchClass = !classFilter || student.kelas === classFilter;
-                const matchSemester = !semesterFilter || student.semester === semesterFilter;
-                const matchYear = !yearFilter || student.tahunAjaran === yearFilter;
-                
-                return matchName && matchClass && matchSemester && matchYear;
-            });
-            
-            displayStudentCards(filteredStudents);
-            updateStudentFilterInfo(filteredStudents.length, window.allStudents.length);
-        }
+            document.getElementById('showingFrom').textContent = startRecord;
+            document.getElementById('showingTo').textContent = endRecord;
+            document.getElementById('totalRecords').textContent = filteredData.length;
 
-        function clearStudentFilters() {
-            document.getElementById('studentNameFilter').value = '';
-            document.getElementById('studentClassFilter').value = '';
-            document.getElementById('studentSemesterFilter').value = '';
-            document.getElementById('studentYearFilter').value = '';
-            
-            if (window.allStudents) {
-                displayStudentCards(window.allStudents);
-                updateStudentFilterInfo(window.allStudents.length, window.allStudents.length);
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentPage <= 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+
+            // Update page numbers
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = `px-3 py-1 text-sm rounded-md ${
+                    i === currentPage 
+                        ? 'bg-primary text-white' 
+                        : 'bg-white border border-gray-300 hover:bg-gray-50'
+                }`;
+                button.onclick = () => goToPage(i);
+                pageNumbers.appendChild(button);
             }
         }
 
-        function sortStudentsByName() {
-            if (!window.allStudents) return;
-            
-            const nameFilter = document.getElementById('studentNameFilter').value.toLowerCase();
-            const classFilter = document.getElementById('studentClassFilter').value;
-            const semesterFilter = document.getElementById('studentSemesterFilter').value;
-            const yearFilter = document.getElementById('studentYearFilter').value;
-            
-            let studentsToSort = window.allStudents.filter(student => {
-                const matchName = !nameFilter || student.nama.toLowerCase().includes(nameFilter);
-                const matchClass = !classFilter || student.kelas === classFilter;
-                const matchSemester = !semesterFilter || student.semester === semesterFilter;
-                const matchYear = !yearFilter || student.tahunAjaran === yearFilter;
-                
-                return matchName && matchClass && matchSemester && matchYear;
-            });
-            
-            studentsToSort.sort((a, b) => a.nama.localeCompare(b.nama));
-            displayStudentCards(studentsToSort);
-        }
-
-        function sortStudentsByViolations() {
-            if (!window.allStudents) return;
-            
-            const nameFilter = document.getElementById('studentNameFilter').value.toLowerCase();
-            const classFilter = document.getElementById('studentClassFilter').value;
-            const semesterFilter = document.getElementById('studentSemesterFilter').value;
-            const yearFilter = document.getElementById('studentYearFilter').value;
-            
-            let studentsToSort = window.allStudents.filter(student => {
-                const matchName = !nameFilter || student.nama.toLowerCase().includes(nameFilter);
-                const matchClass = !classFilter || student.kelas === classFilter;
-                const matchSemester = !semesterFilter || student.semester === semesterFilter;
-                const matchYear = !yearFilter || student.tahunAjaran === yearFilter;
-                
-                return matchName && matchClass && matchSemester && matchYear;
-            });
-            
-            studentsToSort.sort((a, b) => b.totalPelanggaran - a.totalPelanggaran);
-            displayStudentCards(studentsToSort);
-        }
-
-        function updateStudentFilterInfo(filtered, total) {
-            const info = document.getElementById('studentFilterInfo');
-            if (filtered === total) {
-                info.textContent = `Menampilkan semua ${total} siswa`;
-            } else {
-                info.textContent = `Menampilkan ${filtered} dari ${total} siswa`;
-            }
-        }
-
-        function updateCharts() {
-            // Violation Type Chart
-            const violationTypes = {};
-            violationData.forEach(record => {
-                record.violations.forEach(violation => {
-                    violationTypes[violation] = (violationTypes[violation] || 0) + 1;
-                });
-            });
-
-            const ctx1 = document.getElementById('violationTypeChart').getContext('2d');
-            new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(violationTypes),
-                    datasets: [{
-                        label: 'Jumlah Pelanggaran',
-                        data: Object.values(violationTypes),
-                        backgroundColor: 'rgba(147, 51, 234, 0.6)',
-                        borderColor: 'rgba(147, 51, 234, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Class Distribution Chart
-            const classDistribution = {};
-            violationData.forEach(record => {
-                classDistribution[record.kelas] = (classDistribution[record.kelas] || 0) + 1;
-            });
-
-            const ctx2 = document.getElementById('classDistributionChart').getContext('2d');
-            new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(classDistribution),
-                    datasets: [{
-                        label: 'Jumlah Laporan',
-                        data: Object.values(classDistribution),
-                        backgroundColor: 'rgba(34, 197, 94, 0.6)',
-                        borderColor: 'rgba(34, 197, 94, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Trend Chart (by month)
-            const trendData = {};
-            violationData.forEach(record => {
-                const month = new Date(record.tanggalKejadian).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' });
-                trendData[month] = (trendData[month] || 0) + 1;
-            });
-
-            const ctx3 = document.getElementById('trendChart').getContext('2d');
-            new Chart(ctx3, {
-                type: 'line',
-                data: {
-                    labels: Object.keys(trendData),
-                    datasets: [{
-                        label: 'Jumlah Pelanggaran',
-                        data: Object.values(trendData),
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderColor: 'rgba(239, 68, 68, 1)',
-                        borderWidth: 2,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Top Students Chart
-            const studentViolationCount = {};
-            violationData.forEach(record => {
-                const key = `${record.namaSiswa} (${record.kelas})`;
-                studentViolationCount[key] = (studentViolationCount[key] || 0) + record.violations.length;
-            });
-
-            const sortedStudents = Object.entries(studentViolationCount)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 5);
-
-            const ctx4 = document.getElementById('topStudentsChart').getContext('2d');
-            new Chart(ctx4, {
-                type: 'bar',
-                data: {
-                    labels: sortedStudents.map(([name]) => name),
-                    datasets: [{
-                        label: 'Jumlah Pelanggaran',
-                        data: sortedStudents.map(([, count]) => count),
-                        backgroundColor: 'rgba(251, 146, 60, 0.6)',
-                        borderColor: 'rgba(251, 146, 60, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateRecentActivities() {
-            const container = document.getElementById('recentActivities');
-            const recent = violationData
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 5);
-
-            container.innerHTML = '';
-            recent.forEach(record => {
-                const activity = document.createElement('div');
-                activity.className = 'flex items-center space-x-4 p-4 bg-gray-50 rounded-lg';
-                activity.innerHTML = `
-                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <span class="text-purple-600 font-semibold">${record.namaSiswa.charAt(0)}</span>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-800">${record.namaSiswa} (Kelas ${record.kelas})</p>
-                        <p class="text-sm text-gray-600">${record.violations.join(', ')}</p>
-                        <p class="text-xs text-gray-500">${new Date(record.timestamp).toLocaleString('id-ID')}</p>
-                    </div>
-                `;
-                container.appendChild(activity);
-            });
-        }
-
-        function updateHistoryTable() {
-            updateTotalViolationTable();
-            updateDetailHistoryTable();
-        }
-
-        function updateTotalViolationTable() {
-            const tbody = document.getElementById('totalViolationTableBody');
-            tbody.innerHTML = '';
-
-            // Calculate violation counts per student per type
-            const studentViolationCounts = {};
-            
-            // Sort violation data by timestamp (newest first) to process latest data first
-            const sortedViolationData = [...violationData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            sortedViolationData.forEach(record => {
-                const key = `${record.namaSiswa}_${record.kelas}_${record.tahunAjaran}_${record.semester}`;
-                if (!studentViolationCounts[key]) {
-                    studentViolationCounts[key] = {
-                        nama: record.namaSiswa,
-                        kelas: record.kelas,
-                        tahunAjaran: record.tahunAjaran,
-                        semester: record.semester,
-                        'Ikat Pinggang': 0,
-                        'Dasi': 0,
-                        'Rambut': 0,
-                        'Rok': 0,
-                        'Kaos Kaki': 0,
-                        'Sepatu': 0,
-                        'Keterlambatan': 0,
-                        records: [],
-                        jamKedatanganTerakhir: '',
-                        alasanKeterlambatanTerakhir: '',
-                        latestTimestamp: record.timestamp
-                    };
-                }
-                
-                record.violations.forEach(violation => {
-                    studentViolationCounts[key][violation]++;
-                });
-                
-                studentViolationCounts[key].records.push(record);
-                
-                // Update latest arrival time and reason only if this record is newer
-                if (new Date(record.timestamp) >= new Date(studentViolationCounts[key].latestTimestamp)) {
-                    if (record.jamKedatangan) {
-                        studentViolationCounts[key].jamKedatanganTerakhir = record.jamKedatangan;
-                    }
-                    if (record.alasanTerlambat) {
-                        studentViolationCounts[key].alasanKeterlambatanTerakhir = record.alasanTerlambat;
-                    }
-                    studentViolationCounts[key].latestTimestamp = record.timestamp;
-                }
-            });
-
-            // Convert to array and sort by latest timestamp (newest first)
-            const studentsArray = Object.values(studentViolationCounts).map(student => {
-                const violationTypes = ['Ikat Pinggang', 'Dasi', 'Rambut', 'Rok', 'Kaos Kaki', 'Sepatu', 'Keterlambatan'];
-                const totalViolations = violationTypes.reduce((sum, type) => sum + student[type], 0);
-                const jumlahLaporan = student.records.length;
-                
-                return {
-                    ...student,
-                    totalViolations,
-                    jumlahLaporan
-                };
-            }).sort((a, b) => new Date(b.latestTimestamp) - new Date(a.latestTimestamp));
-
-            studentsArray.forEach((student, index) => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 cursor-pointer';
-                row.onclick = () => showStudentDetailsFromTable(student);
-                
-                const getViolationCellClass = (count) => {
-                    if (count === 0) return 'text-gray-400';
-                    if (count <= 2) return 'text-green-600 font-semibold';
-                    if (count === 3) return 'text-yellow-600 font-semibold';
-                    if (count === 4) return 'text-orange-600 font-semibold';
-                    if (count === 5) return 'text-red-600 font-semibold';
-                    return 'text-purple-600 font-bold';
-                };
-                
-                row.innerHTML = `
-                    <td class="px-2 py-3 text-sm text-gray-900">${index + 1}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900">${student.tahunAjaran}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900">${student.semester}</td>
-                    <td class="px-3 py-3 text-sm font-medium text-gray-900">${student.nama}</td>
-                    <td class="px-2 py-3 text-sm text-gray-900">${student.kelas}</td>
-                    <td class="px-2 py-3 text-sm text-center ${getViolationCellClass(student['Ikat Pinggang'])}">${student['Ikat Pinggang']}</td>
-                    <td class="px-3 py-3 text-sm text-center"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(student['Ikat Pinggang']))}">${getStatus(student['Ikat Pinggang'])}</span></td>
-                    <td class="px-2 py-3 text-sm text-center ${getViolationCellClass(student['Dasi'])}">${student['Dasi']}</td>
-                    <td class="px-3 py-3 text-sm text-center"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(student['Dasi']))}">${getStatus(student['Dasi'])}</span></td>
-                    <td class="px-2 py-3 text-sm text-center ${getViolationCellClass(student['Rambut'])}">${student['Rambut']}</td>
-                    <td class="px-3 py-3 text-sm text-center"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(student['Rambut']))}">${getStatus(student['Rambut'])}</span></td>
-                    <td class="px-2 py-3 text-sm text-center ${getViolationCellClass(student['Rok'])}">${student['Rok']}</td>
-                    <td class="px-3 py-3 text-sm text-center"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(student['Rok']))}">${getStatus(student['Rok'])}</span></td>
-                    <td class="px-2 py-3 text-sm text-center ${getViolationCellClass(student['Kaos Kaki'])}">${student['Kaos Kaki']}</td>
-                    <td class="px-3 py-3 text-sm text-center"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(student['Kaos Kaki']))}">${getStatus(student['Kaos Kaki'])}</span></td>
-                    <td class="px-2 py-3 text-sm text-center ${getViolationCellClass(student['Sepatu'])}">${student['Sepatu']}</td>
-                    <td class="px-3 py-3 text-sm text-center"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(student['Sepatu']))}">${getStatus(student['Sepatu'])}</span></td>
-                    <td class="px-2 py-3 text-sm text-center ${getViolationCellClass(student['Keterlambatan'])}">${student['Keterlambatan']}</td>
-                    <td class="px-3 py-3 text-sm text-center"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(student['Keterlambatan']))}">${getStatus(student['Keterlambatan'])}</span></td>
-                    <td class="px-3 py-3 text-sm text-center text-gray-900">${student.jamKedatanganTerakhir || '-'}</td>
-                    <td class="px-3 py-3 text-sm text-center text-gray-900" title="${student.alasanKeterlambatanTerakhir || '-'}">${student.alasanKeterlambatanTerakhir ? (student.alasanKeterlambatanTerakhir.length > 20 ? student.alasanKeterlambatanTerakhir.substring(0, 20) + '...' : student.alasanKeterlambatanTerakhir) : '-'}</td>
-                    <td class="px-3 py-3 text-sm text-center font-semibold text-blue-600">${student.jumlahLaporan}</td>
-                    <td class="px-3 py-3 text-sm text-center font-bold ${student.totalViolations > 10 ? 'text-red-600' : student.totalViolations > 5 ? 'text-orange-600' : 'text-gray-900'}">${student.totalViolations}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateDetailHistoryTable() {
-            const tbody = document.getElementById('historyTableBody');
-            tbody.innerHTML = '';
-
-            // Calculate violation counts per student per type
-            const studentViolationCounts = {};
-            
-            violationData.forEach(record => {
-                const key = `${record.namaSiswa}_${record.kelas}`;
-                if (!studentViolationCounts[key]) {
-                    studentViolationCounts[key] = {
-                        'Ikat Pinggang': 0,
-                        'Dasi': 0,
-                        'Rambut': 0,
-                        'Rok': 0,
-                        'Kaos Kaki': 0,
-                        'Sepatu': 0,
-                        'Keterlambatan': 0
-                    };
-                }
-                
-                record.violations.forEach(violation => {
-                    studentViolationCounts[key][violation]++;
-                });
-            });
-
-            // Sort by timestamp (newest first) and show all records, not just 10
-            violationData
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .forEach((record, index) => {
-                    const key = `${record.namaSiswa}_${record.kelas}`;
-                    const counts = studentViolationCounts[key];
-                    
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50';
-                    
-                    const totalViolations = Object.values(counts).reduce((sum, count) => sum + count, 0);
-                    
-                    row.innerHTML = `
-                        <td class="px-4 py-3 text-sm text-gray-900">${index + 1}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${record.tahunAjaran}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${record.semester}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${record.namaSiswa}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${record.kelas}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${counts['Ikat Pinggang']}</td>
-                        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(counts['Ikat Pinggang']))}">${getStatus(counts['Ikat Pinggang'])}</span></td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${counts['Dasi']}</td>
-                        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(counts['Dasi']))}">${getStatus(counts['Dasi'])}</span></td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${counts['Rambut']}</td>
-                        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(counts['Rambut']))}">${getStatus(counts['Rambut'])}</span></td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${counts['Rok']}</td>
-                        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(counts['Rok']))}">${getStatus(counts['Rok'])}</span></td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${counts['Kaos Kaki']}</td>
-                        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(counts['Kaos Kaki']))}">${getStatus(counts['Kaos Kaki'])}</span></td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${counts['Sepatu']}</td>
-                        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(counts['Sepatu']))}">${getStatus(counts['Sepatu'])}</span></td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${counts['Keterlambatan']}</td>
-                        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${getStatusColor(getStatus(counts['Keterlambatan']))}">${getStatus(counts['Keterlambatan'])}</span></td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${record.jamKedatangan || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900" title="${record.alasanTerlambat || '-'}">${record.alasanTerlambat ? (record.alasanTerlambat.length > 15 ? record.alasanTerlambat.substring(0, 15) + '...' : record.alasanTerlambat) : '-'}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900">${violationData.filter(v => v.namaSiswa === record.namaSiswa && v.kelas === record.kelas).length}</td>
-                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">${totalViolations}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-        }
-
-        function showStudentDetailsFromTable(student) {
-            // Find all records for this student
-            const studentRecords = violationData.filter(record => 
-                record.namaSiswa === student.nama && record.kelas === student.kelas
-            );
-            
-            const studentData = {
-                nama: student.nama,
-                kelas: student.kelas,
-                totalPelanggaran: student.totalViolations,
-                records: studentRecords
-            };
-            
-            showStudentDetails(studentData);
-        }
-
+        // Helper functions
         function getStatusColor(status) {
-            switch (status) {
-                case '-': return 'bg-gray-100 text-gray-800';
-                case 'Teguran Lisan & Pencatatan': return 'bg-green-100 text-green-800';
-                case 'Bertemu WK & Pencatatan': return 'bg-yellow-100 text-yellow-800';
-                case 'Detensi I': return 'bg-orange-100 text-orange-800';
-                case 'Detensi II': return 'bg-red-100 text-red-800';
-                case 'Dipulangkan': return 'bg-purple-100 text-purple-800';
+            switch(status) {
+                case 'Disetujui': return 'bg-green-100 text-green-800';
+                case 'Dalam Proses': return 'bg-yellow-100 text-yellow-800';
+                case 'Selesai': return 'bg-emerald-100 text-emerald-800';
+                case 'Ditolak': return 'bg-red-100 text-red-800';
                 default: return 'bg-gray-100 text-gray-800';
             }
         }
 
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const messageEl = document.getElementById('notificationMessage');
-            
-            messageEl.textContent = message;
-            notification.classList.remove('hidden');
-            notification.classList.add('notification-enter');
-            
-            setTimeout(() => {
-                hideNotification();
-            }, 5000);
-        }
-
-        function hideNotification() {
-            const notification = document.getElementById('notification');
-            notification.classList.add('hidden');
-            notification.classList.remove('notification-enter');
-        }
-
-        function showViolationDetails(type) {
-            const modal = document.getElementById('violationModal');
-            const title = document.getElementById('modalTitle');
-            const content = document.getElementById('modalContent');
-            
-            let filteredData = [];
-            let titleText = '';
-            
-            // Calculate violation counts per student per type
-            const studentViolationCounts = {};
-            
-            violationData.forEach(record => {
-                const key = `${record.namaSiswa}_${record.kelas}`;
-                if (!studentViolationCounts[key]) {
-                    studentViolationCounts[key] = {
-                        nama: record.namaSiswa,
-                        kelas: record.kelas,
-                        'Ikat Pinggang': 0,
-                        'Dasi': 0,
-                        'Rambut': 0,
-                        'Rok': 0,
-                        'Kaos Kaki': 0,
-                        'Sepatu': 0,
-                        'Keterlambatan': 0,
-                        records: []
-                    };
-                }
-                
-                record.violations.forEach(violation => {
-                    studentViolationCounts[key][violation]++;
-                });
-                studentViolationCounts[key].records.push(record);
-            });
-            
-            switch (type) {
-                case 'total':
-                    filteredData = violationData;
-                    titleText = `📊 Semua Laporan Pelanggaran (${violationData.length} laporan)`;
-                    break;
-                case 'teguran':
-                    titleText = '🟢 Detail Teguran Lisan & Pencatatan';
-                    break;
-                case 'wk':
-                    titleText = '🟡 Detail Bertemu WK & Pencatatan';
-                    break;
-                case 'detensi1':
-                    titleText = '🟠 Detail Detensi I';
-                    break;
-                case 'detensi2':
-                    titleText = '🔴 Detail Detensi II';
-                    break;
-                case 'dipulangkan':
-                    titleText = '🟣 Detail Dipulangkan';
-                    break;
+        function getJenisColor(jenis) {
+            switch(jenis) {
+                case 'Barang': return 'bg-blue-100 text-blue-800';
+                case 'Perbaikan': return 'bg-purple-100 text-purple-800';
+                default: return 'bg-gray-100 text-gray-800';
             }
-            
-            title.textContent = titleText;
-            content.innerHTML = '';
-            
-            if (type === 'total') {
-                // Show all violation records
-                const sortedData = violationData
-                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                    .slice(0, 20);
-                
-                sortedData.forEach(record => {
-                    const item = document.createElement('div');
-                    item.className = 'p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-l-4 border-blue-500';
-                    item.innerHTML = `
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-gray-800">${record.namaSiswa}</h4>
-                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Kelas ${record.kelas}</span>
-                        </div>
-                        <div class="mb-2">
-                            <p class="text-sm font-medium text-gray-700">Pelanggaran:</p>
-                            <div class="flex flex-wrap gap-1 mt-1">
-                                ${record.violations.map(v => `<span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">${v}</span>`).join('')}
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                            <p><strong>Tanggal:</strong> ${new Date(record.tanggalKejadian).toLocaleDateString('id-ID')}</p>
-                            <p><strong>Semester:</strong> ${record.semester}</p>
-                            ${record.jamKedatangan ? `<p><strong>Jam:</strong> ${record.jamKedatangan}</p>` : ''}
-                            ${record.alasanTerlambat ? `<p class="col-span-2"><strong>Alasan:</strong> ${record.alasanTerlambat}</p>` : ''}
-                        </div>
-                    `;
-                    content.appendChild(item);
-                });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // Table functionality
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
             } else {
-                // Show students by status
-                const studentsWithStatus = [];
-                
-                Object.values(studentViolationCounts).forEach(student => {
-                    const violations = ['Ikat Pinggang', 'Dasi', 'Rambut', 'Rok', 'Kaos Kaki', 'Sepatu', 'Keterlambatan'];
-                    
-                    violations.forEach(violationType => {
-                        const count = student[violationType];
-                        const status = getStatus(count);
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            applyFilters();
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            updateTable();
+            updatePagination();
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                goToPage(newPage);
+            }
+        }
+
+        function clearAllFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('jenisFilter').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            
+            currentPage = 1;
+            sortColumn = '';
+            sortDirection = 'asc';
+            
+            applyFilters();
+        }
+
+        function exportToCSV() {
+            if (filteredData.length === 0) {
+                alert('Tidak ada data untuk diekspor');
+                return;
+            }
+
+            const headers = ['ID Transaksi', 'Tanggal Pengajuan', 'Nama Pengaju', 'Jenis Pengajuan', 'Deskripsi', 'Status', 'Keterangan Admin'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredData.map(item => [
+                    `"${item.idTransaksi || ''}"`,
+                    `"${item.tanggalPengajuan || ''}"`,
+                    `"${item.namaPengaju || ''}"`,
+                    `"${item.jenisPengajuan || ''}"`,
+                    `"${(item.deskripsi || '').replace(/"/g, '""')}"`,
+                    `"${item.status || ''}"`,
+                    `"${(item.keteranganAdmin || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `riwayat-permintaan-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function viewDetail(idTransaksi) {
+            const item = allData.find(data => (data.idTransaksi || data.idtransaksi) === idTransaksi);
+            if (!item) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Detail Permintaan</h3>
+                            <button onclick="this.closest('.fixed').remove()" 
+                                    class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
                         
-                        if ((type === 'teguran' && status === 'Teguran Lisan & Pencatatan') ||
-                            (type === 'wk' && status === 'Bertemu WK & Pencatatan') ||
-                            (type === 'detensi1' && status === 'Detensi I') ||
-                            (type === 'detensi2' && status === 'Detensi II') ||
-                            (type === 'dipulangkan' && status === 'Dipulangkan')) {
-                            
-                            studentsWithStatus.push({
-                                nama: student.nama,
-                                kelas: student.kelas,
-                                violationType: violationType,
-                                count: count,
-                                status: status,
-                                records: student.records.filter(r => r.violations.includes(violationType))
-                            });
-                        }
-                    });
-                });
-                
-                if (studentsWithStatus.length === 0) {
-                    content.innerHTML = '<p class="text-center text-gray-500 py-8">Tidak ada data untuk kategori ini</p>';
-                } else {
-                    studentsWithStatus.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = `p-4 rounded-lg border-l-4 ${getStatusBorderColor(item.status)} ${getStatusBgColor(item.status)}`;
-                        div.innerHTML = `
-                            <div class="flex justify-between items-start mb-3">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <h4 class="font-bold text-gray-800">${item.nama}</h4>
-                                    <p class="text-sm text-gray-600">Kelas ${item.kelas}</p>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">ID Transaksi</label>
+                                    <div class="text-sm font-mono bg-gray-50 p-2 rounded">${item.idTransaksi || item.idtransaksi || '-'}</div>
                                 </div>
-                                <span class="text-xs px-2 py-1 rounded-full ${getStatusColor(item.status)}">${item.status}</span>
-                            </div>
-                            <div class="mb-3">
-                                <p class="text-sm font-medium text-gray-700">Jenis Pelanggaran: <span class="font-bold text-red-600">${item.violationType}</span></p>
-                                <p class="text-sm text-gray-600">Jumlah Pelanggaran: <span class="font-bold">${item.count} kali</span></p>
-                            </div>
-                            <div class="space-y-2">
-                                <p class="text-xs font-medium text-gray-700">Riwayat Pelanggaran:</p>
-                                ${item.records.slice(0, 3).map(record => `
-                                    <div class="text-xs bg-white bg-opacity-50 p-2 rounded">
-                                        <p><strong>Tanggal:</strong> ${new Date(record.tanggalKejadian).toLocaleDateString('id-ID')}</p>
-                                        ${record.jamKedatangan ? `<p><strong>Jam:</strong> ${record.jamKedatangan}</p>` : ''}
-                                        ${record.alasanTerlambat ? `<p><strong>Alasan:</strong> ${record.alasanTerlambat}</p>` : ''}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pengajuan</label>
+                                    <div class="text-sm bg-gray-50 p-2 rounded">${formatDate(item.tanggalPengajuan || item.tanggalpengajuan)}</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pengaju</label>
+                                    <div class="text-sm bg-gray-50 p-2 rounded">${item.namaPengaju || item.namapengaju || '-'}</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Pengajuan</label>
+                                    <div class="text-sm bg-gray-50 p-2 rounded">
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium ${getJenisColor(item.jenisPengajuan || item.jenispengajuan)}">
+                                            ${item.jenisPengajuan || item.jenispengajuan || '-'}
+                                        </span>
                                     </div>
-                                `).join('')}
-                                ${item.records.length > 3 ? `<p class="text-xs text-gray-500">... dan ${item.records.length - 3} lainnya</p>` : ''}
+                                </div>
                             </div>
-                        `;
-                        content.appendChild(div);
-                    });
-                }
-            }
-            
-            modal.classList.remove('hidden');
-        }
-
-        function getStatusBorderColor(status) {
-            switch (status) {
-                case 'Teguran Lisan & Pencatatan': return 'border-green-500';
-                case 'Bertemu WK & Pencatatan': return 'border-yellow-500';
-                case 'Detensi I': return 'border-orange-500';
-                case 'Detensi II': return 'border-red-500';
-                case 'Dipulangkan': return 'border-purple-500';
-                default: return 'border-gray-500';
-            }
-        }
-
-        function getStatusBgColor(status) {
-            switch (status) {
-                case 'Teguran Lisan & Pencatatan': return 'bg-gradient-to-r from-green-50 to-green-100';
-                case 'Bertemu WK & Pencatatan': return 'bg-gradient-to-r from-yellow-50 to-yellow-100';
-                case 'Detensi I': return 'bg-gradient-to-r from-orange-50 to-orange-100';
-                case 'Detensi II': return 'bg-gradient-to-r from-red-50 to-red-100';
-                case 'Dipulangkan': return 'bg-gradient-to-r from-purple-50 to-purple-100';
-                default: return 'bg-gradient-to-r from-gray-50 to-gray-100';
-            }
-        }
-
-        function showStudentDetails(student) {
-            const modal = document.getElementById('violationModal');
-            const title = document.getElementById('modalTitle');
-            const content = document.getElementById('modalContent');
-            
-            title.textContent = `👤 Detail Pelanggaran - ${student.nama} (Kelas ${student.kelas})`;
-            content.innerHTML = '';
-            
-            // Calculate violation counts for this student
-            const violationCounts = {
-                'Ikat Pinggang': 0,
-                'Dasi': 0,
-                'Rambut': 0,
-                'Rok': 0,
-                'Kaos Kaki': 0,
-                'Sepatu': 0,
-                'Keterlambatan': 0
-            };
-            
-            student.records.forEach(record => {
-                record.violations.forEach(violation => {
-                    violationCounts[violation]++;
-                });
-            });
-            
-            // Summary section
-            const summaryDiv = document.createElement('div');
-            summaryDiv.className = 'mb-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-purple-500';
-            summaryDiv.innerHTML = `
-                <h4 class="font-bold text-gray-800 mb-3">📊 Ringkasan Pelanggaran</h4>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    ${Object.entries(violationCounts).map(([type, count]) => {
-                        const status = getStatus(count);
-                        return `
-                            <div class="text-center p-2 bg-white rounded-lg shadow-sm">
-                                <p class="text-xs font-medium text-gray-600">${type}</p>
-                                <p class="text-lg font-bold ${count > 0 ? 'text-red-600' : 'text-gray-400'}">${count}</p>
-                                <span class="text-xs px-2 py-1 rounded-full ${getStatusColor(status)}">${status}</span>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                                <div class="text-sm bg-gray-50 p-3 rounded min-h-[80px]">${item.deskripsi || '-'}</div>
                             </div>
-                        `;
-                    }).join('')}
-                </div>
-                <div class="mt-3 text-center">
-                    <p class="text-sm text-gray-600">Total Laporan: <span class="font-bold text-purple-600">${student.records.length}</span></p>
-                    <p class="text-sm text-gray-600">Total Pelanggaran: <span class="font-bold text-red-600">${student.totalPelanggaran}</span></p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <div class="text-sm bg-gray-50 p-2 rounded">
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}">
+                                            ${item.status || '-'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Update</label>
+                                    <div class="text-sm bg-gray-50 p-2 rounded">${formatDate(item.tanggalUpdateStatus || item.tanggalupdatestatus) || '-'}</div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan Admin</label>
+                                <div class="text-sm bg-gray-50 p-3 rounded min-h-[60px]">${item.keteranganAdmin || item.keteranganadmin || 'Belum ada keterangan'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end">
+                            <button onclick="this.closest('.fixed').remove()" 
+                                    class="bg-primary hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
-            content.appendChild(summaryDiv);
             
-            // Records section
-            const recordsTitle = document.createElement('h4');
-            recordsTitle.className = 'font-bold text-gray-800 mb-3';
-            recordsTitle.textContent = '📋 Riwayat Pelanggaran';
-            content.appendChild(recordsTitle);
-            
-            // Sort records by date (newest first)
-            const sortedRecords = student.records.sort((a, b) => new Date(b.tanggalKejadian) - new Date(a.tanggalKejadian));
-            
-            sortedRecords.forEach((record, index) => {
-                const item = document.createElement('div');
-                item.className = 'mb-4 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border-l-4 border-blue-500';
-                item.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h5 class="font-semibold text-gray-800">Laporan #${sortedRecords.length - index}</h5>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${new Date(record.tanggalKejadian).toLocaleDateString('id-ID')}</span>
-                    </div>
-                    <div class="mb-3">
-                        <p class="text-sm font-medium text-gray-700 mb-1">Jenis Pelanggaran:</p>
-                        <div class="flex flex-wrap gap-1">
-                            ${record.violations.map(v => `<span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">${v}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                        <p><strong>Tahun Ajaran:</strong> ${record.tahunAjaran}</p>
-                        <p><strong>Semester:</strong> ${record.semester}</p>
-                        ${record.jamKedatangan ? `<p><strong>Jam Kedatangan:</strong> ${record.jamKedatangan}</p>` : ''}
-                        <p><strong>Waktu Input:</strong> ${new Date(record.timestamp).toLocaleString('id-ID')}</p>
-                    </div>
-                    ${record.alasanTerlambat ? `
-                        <div class="mt-2 p-2 bg-yellow-50 rounded border-l-2 border-yellow-400">
-                            <p class="text-xs"><strong>Alasan Terlambat:</strong> ${record.alasanTerlambat}</p>
-                        </div>
-                    ` : ''}
-                `;
-                content.appendChild(item);
-            });
-            
-            // Action recommendations
-            const hasHighViolations = Object.values(violationCounts).some(count => count >= 4);
-            if (hasHighViolations) {
-                const recommendationDiv = document.createElement('div');
-                recommendationDiv.className = 'mt-4 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg border-l-4 border-red-500';
-                recommendationDiv.innerHTML = `
-                    <h5 class="font-bold text-red-800 mb-2">⚠️ Rekomendasi Tindakan</h5>
-                    <p class="text-sm text-red-700">Siswa ini memiliki pelanggaran tinggi dan memerlukan perhatian khusus. Disarankan untuk:</p>
-                    <ul class="text-sm text-red-700 mt-2 ml-4 list-disc">
-                        <li>Konseling dengan wali kelas</li>
-                        <li>Komunikasi dengan orang tua</li>
-                        <li>Monitoring ketat</li>
-                        <li>Program pembinaan khusus</li>
-                    </ul>
-                `;
-                content.appendChild(recommendationDiv);
-            }
-            
-            modal.classList.remove('hidden');
+            document.body.appendChild(modal);
         }
 
-        function closeModal() {
-            document.getElementById('violationModal').classList.add('hidden');
-        }
 
-        async function refreshData() {
-            const refreshButton = document.querySelector('button[onclick="refreshData()"]');
-            const originalText = refreshButton.textContent;
-            refreshButton.textContent = 'Memuat...';
-            refreshButton.disabled = true;
+
+
+
+        function showSuccessMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform';
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    ${message}
+                </div>
+            `;
             
-            try {
-                await loadDataFromSpreadsheet();
-                updateDashboard();
-                updateHistoryTable();
-                showNotification('Data berhasil diperbarui dari Google Spreadsheet!');
-            } catch (error) {
-                showNotification('Data berhasil diperbarui dari Google Spreadsheet!', 'error');
-            }
+            document.body.appendChild(toast);
             
-            refreshButton.textContent = originalText;
-            refreshButton.disabled = false;
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
         }
 
-        function applyFilters() {
-            // Filter functionality would be implemented here
-            showNotification('Filter diterapkan!');
-        }
-
-        // Add real-time search functionality
+        // Event listeners for filters
         document.addEventListener('DOMContentLoaded', function() {
-            // Add event listeners for real-time filtering
-            const studentNameFilter = document.getElementById('studentNameFilter');
-            if (studentNameFilter) {
-                studentNameFilter.addEventListener('input', filterStudentData);
-            }
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('jenisFilter').addEventListener('change', applyFilters);
+            document.getElementById('dateFrom').addEventListener('change', applyFilters);
+            document.getElementById('dateTo').addEventListener('change', applyFilters);
+
+
         });
 
-        // Close modal when clicking outside
-        document.getElementById('violationModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
+        // Close modal
+        function closeModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('successModal').classList.remove('flex');
+        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a439e9a6107e32',t:'MTc1OTc0MzkzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9760602a2752a0bc',t:'MTc1NjM0ODExMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
